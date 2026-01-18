@@ -86,7 +86,8 @@ def main(page: ft.Page):
     # ===== APPLICATION STATE =====
     app_state = {
         "confirming": False,  # 執行確認狀態
-        "targets": []  # 待處理文件清單
+        "targets": [],  # 待處理文件清單
+        "is_executing": False  # 正在執行重命名
     }
 
     # ========================================================================
@@ -153,7 +154,7 @@ def main(page: ft.Page):
     def _update_live_preview(targets: List[Tuple[Path, str]]) -> None:
         """更新即時預覽 (顯示前3個)"""
         controls = []
-        for item, new_name in targets[:3]:
+        for item, new_name in targets[:1]:
             color = COLORS["accent"] if item.name != new_name else "grey"
             controls.append(
                 ft.Text(f"{item.name}  →  {new_name}", color=color, font_family="monospace")
@@ -168,9 +169,15 @@ def main(page: ft.Page):
     def _update_status_banner(targets: List[Tuple[Path, str]]) -> None:
         """更新狀態橫幅"""
         changed_count = sum(1 for t in targets if t[0].name != t[1])
+        total_count = len(targets)
 
-        if changed_count > 0:
-            _set_status_banner("ready", f"準備就緒: {changed_count} 個文件將被重命名")
+        # 檢查文件數量是否超過 300
+        if total_count > 300:
+            status_msg = f"找到 {total_count} 個文件| 變更: {changed_count} 個"
+            _set_status_banner("warning", status_msg)
+        elif changed_count > 0:
+            status_msg = f"準備就緒: {changed_count} 個文件將被重命名"
+            _set_status_banner("ready", status_msg)
         else:
             _set_status_banner("idle", f"無變化偵測 ({OPENCC_STATUS})")
 
@@ -235,6 +242,10 @@ def main(page: ft.Page):
         - 首次點擊：顯示確認狀態
         - 二次點擊：執行重命名
         """
+        # 防止重複點擊
+        if app_state["is_executing"]:
+            return
+
         targets = app_state["targets"]
         changed = [t for t in targets if t[0].name != t[1]]
 
@@ -250,7 +261,6 @@ def main(page: ft.Page):
         # 首次點擊 - 顯示確認狀態
         if not app_state["confirming"]:
             app_state["confirming"] = True
-            # btn_execute.current.text = f"確認重新命名 ({len(changed)} 個文件)"
             btn_execute.current.text = f"確認重新命名"
             btn_execute.current.bgcolor = COLORS["red"]
             btn_execute.current.color = "white"
@@ -259,37 +269,50 @@ def main(page: ft.Page):
 
         # 二次點擊 - 執行重命名
         else:
+            # 進入 loading 狀態
+            app_state["is_executing"] = True
+            btn_execute.current.disabled = True
+            btn_execute.current.text = "正在重新命名..."
+            btn_execute.current.bgcolor = "grey700"
+            btn_execute.current.update()
+            page.update()
+
             success = 0
             log_lines = [ft.Text("--- 執行開始 ---", color=COLORS["accent"])]
 
-            for old, new in targets:
-                if old.name == new:
-                    continue
-                try:
-                    os.rename(old, old.parent / new)
-                    success += 1
-                    log_lines.append(
-                        ft.Text(f"[OK] {old.name} -> {new}", color="green", font_family="monospace")
-                    )
-                except Exception as ex:
-                    log_lines.append(
-                        ft.Text(f"[ERR] {old.name}: {ex}", color="red", font_family="monospace")
-                    )
+            try:
+                for old, new in targets:
+                    if old.name == new:
+                        continue
+                    try:
+                        os.rename(old, old.parent / new)
+                        success += 1
+                        log_lines.append(
+                            ft.Text(f"[OK] {old.name} -> {new}", color="green", font_family="monospace")
+                        )
+                    except Exception as ex:
+                        log_lines.append(
+                            ft.Text(f"[ERR] {old.name}: {ex}", color="red", font_family="monospace")
+                        )
 
-            _reset_execute_button()
-            update_ui()
-            log_lines.append(
-                ft.Text(f"--- 完成: {success} 個文件已重命名 ---", weight="bold")
-            )
-            preview_log.current.controls = log_lines
-            preview_log.current.update()
+                log_lines.append(
+                    ft.Text(f"--- 完成: {success} 個文件已重命名 ---", weight="bold")
+                )
 
-            page.snack_bar = ft.SnackBar(
-                content=ft.Text(f"成功! {success} 個文件已重命名"),
-                bgcolor="green"
-            )
-            page.snack_bar.open = True
-            page.update()
+            finally:
+                # 恢復狀態
+                app_state["is_executing"] = False
+                _reset_execute_button()
+                update_ui()
+                preview_log.current.controls = log_lines
+                preview_log.current.update()
+
+                page.snack_bar = ft.SnackBar(
+                    content=ft.Text(f"成功! {success} 個文件已重命名"),
+                    bgcolor="green"
+                )
+                page.snack_bar.open = True
+                page.update()
 
     def on_show_full_preview(e) -> None:
         """顯示完整預覽"""
@@ -327,10 +350,10 @@ def main(page: ft.Page):
 
     def get_targets() -> List[Tuple[Path, str]]:
         """
-        掃描目標資料夾並生成重命名配對
+        遞歸掃描目標資料夾及其子資料夾，生成重命名配對
 
         Returns:
-            [(原始路徑, 新名稱), ...] 列表
+            [(原始路徑, 新名稱), ...] 列表（包含所有層級）
         """
         raw_path = selected_path.current.value
         if not raw_path:
@@ -349,34 +372,55 @@ def main(page: ft.Page):
         if filter_ext.current.value:
             valid_exts = [e.strip().lower() for e in filter_ext.current.value.split(',')]
 
-        try:
-            for item in p.iterdir():
-                # 跳過隱藏文件
-                if item.name.startswith('.'):
-                    continue
-
-                # 根據模式篩選
-                if item.is_dir() and mode == "files":
-                    continue
-
-                # 副檔名篩選
-                if item.is_file() and f_type == "ext" and valid_exts:
-                    if item.suffix.lower() not in valid_exts:
+        def _scan_recursive(directory: Path) -> None:
+            """遞歸掃描資料夾及其所有子資料夾"""
+            try:
+                for item in directory.iterdir():
+                    # 跳過隱藏文件和資料夾
+                    if item.name.startswith('.'):
                         continue
 
-                new_name = item.name
+                    # 如果是資料夾，遞歸進入
+                    if item.is_dir():
+                        if mode != "files":
+                            # 如果需要重命名資料夾，則處理
+                            new_name = item.name
 
-                # 1. 應用文字轉換
-                operation = op_mode.current.value
-                new_name = _apply_conversion(new_name, operation)
+                            # 1. 應用文字轉換
+                            operation = op_mode.current.value
+                            new_name = _apply_conversion(new_name, operation)
 
-                # 2. 應用格式化
-                new_name = _apply_formatting(item, new_name)
+                            # 2. 應用格式化
+                            new_name = _apply_formatting(item, new_name)
 
-                targets.append((item, new_name))
+                            targets.append((item, new_name))
 
-        except Exception as e:
-            print(f"掃描錯誤: {e}")
+                        # 遞歸掃描子資料夾
+                        _scan_recursive(item)
+
+                    # 如果是文件
+                    else:
+                        # 副檔名篩選
+                        if f_type == "ext" and valid_exts:
+                            if item.suffix.lower() not in valid_exts:
+                                continue
+
+                        new_name = item.name
+
+                        # 1. 應用文字轉換
+                        operation = op_mode.current.value
+                        new_name = _apply_conversion(new_name, operation)
+
+                        # 2. 應用格式化
+                        new_name = _apply_formatting(item, new_name)
+
+                        targets.append((item, new_name))
+
+            except Exception as e:
+                print(f"掃描錯誤 ({directory}): {e}")
+
+        # 開始遞歸掃描
+        _scan_recursive(p)
 
         return targets
 
@@ -402,12 +446,6 @@ def main(page: ft.Page):
                     bgcolor=COLORS["accent"], color="black",
                     on_click=update_ui,
                     height=40, expand=True
-                ),
-                ft.OutlinedButton(
-                    "Browse...",
-                    icon=ft.Icons.FOLDER_OPEN,
-                    on_click=lambda _: file_picker.get_directory_path(dialog_title="Select Folder to Rename"),
-                    height=40
                 )
             ]),
             ft.RadioGroup(
@@ -510,7 +548,7 @@ def main(page: ft.Page):
                 )
             ]),
             ft.Divider(),
-            ft.Text("Live Preview (Top 3):", color=COLORS["text_dim"]),
+            ft.Text("Live Preview :", color=COLORS["text_dim"]),
             ft.Column(ref=live_preview_container)
         ], spacing=10),
         padding=15, bgcolor=COLORS["card"], border_radius=10
@@ -576,7 +614,7 @@ def main(page: ft.Page):
             ft.Icon(ft.Icons.DRIVE_FILE_RENAME_OUTLINE, color=COLORS["accent"], size=32),
             ft.Column([
                 ft.Text("Renamer", size=28, weight=ft.FontWeight.BOLD),
-                ft.Text("v4.4 • Batch File Renaming Tool", size=11, color=COLORS["text_dim"])
+                ft.Text("v1.0 • Batch File Renaming Tool", size=11, color=COLORS["text_dim"])
             ], spacing=2)
         ], spacing=15, alignment=ft.MainAxisAlignment.START),
         ft.Container(height=25),
