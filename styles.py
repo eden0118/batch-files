@@ -1,185 +1,85 @@
 #!/usr/bin/env python3
 """
-Batch File Renaming Tool - Style Configuration
-Hacker Terminal Green theme design
+Batch File Renaming Tool - Compact Style Configuration
+Optimized for 1080p Screens (Lower vertical footprint)
 """
-from typing import Tuple
-from i18n import DEFAULT_LANGUAGE
 
-THEMES = {
-    "dark": {
-        # Background Colors (Hacker Terminal Style)
-        "bg_primary": "#000000",              # Primary background (pure black)
-        "bg_secondary": "#0A0A0A",            # Secondary background (very dark)
-        "bg_tertiary": "#0D0D0D",             # Tertiary background (card)
-        "bg_input": "#000000",                # Input field background (black)
-
-        # Button Colors (Green Neon)
-        "bg_button": "#00DD00",               # Primary action button (bright green)
-        "bg_button_hover": "#166534",         # Brighter green on hover
-        "fg_button": "#000000",               # Black text on buttons
-
-        # Secondary Button
-        "bg_button_secondary": "#1A3A1A",     # Dark green secondary button
-        "fg_button_secondary": "#00DD00",     # Green text
-
-        # Text Colors
-        "fg_primary": "#00DD00",              # Primary text (bright green)
-        "fg_secondary": "#16a34a",            # Secondary text (darker green)
-        "fg_tertiary": "#006600",             # Tertiary text (even darker green)
-
-        # Border & Separator
-        "border": "#00DD00",                  # Green separator color
-
-        # Typography (Monospace - Terminal Style)
-        "font_title": ("Monaco", 20, "bold"),
-        "font_header": ("Monaco", 16, "bold"),
-        "font_normal": ("Monaco", 13),
-        "font_small": ("Monaco", 11),
-        "font_log": ("Monaco", 11),
-    }
+# Color Palette (Unchanged)
+COLORS = {
+    "bg": "#121212",
+    "fg": "#00DD00",
+    "text_normal": "#E0E0E0",
+    "secondary": "#16a34a",
+    "input_bg": "#2D2D2D",
+    "input_fg": "#FFFFFF",
+    "btn_bg": "#FFFFFF",
+    "btn_fg": "#006400",
+    "disabled_fg": "#555555",
 }
 
-# Widget Style Presets
-def get_widget_config(theme: dict, widget_type: str) -> dict:
-    """Get style configuration for widget type"""
-    configs = {
-        "label": {
-            "bg": theme["bg_primary"],
-            "fg": theme["fg_primary"]
-        },
-        "label_secondary": {
-            "bg": theme["bg_primary"],
-            "fg": theme["fg_secondary"]
-        },
-        "frame": {
-            "bg": theme["bg_primary"]
-        },
-        "entry": {
-            "bg": theme["bg_input"],
-            "fg": theme["fg_primary"],
-            "insertbackground": theme["fg_primary"],
-            "relief": "solid",
-            "bd": 1,
-            "borderwidth": 1
-        },
-        "button": {
-            "bg": theme["bg_button"],
-            "fg": theme["fg_button"],
-            "activebackground": theme["bg_button_hover"],
-            "activeforeground": theme["fg_button"],
-            "relief": "solid",
-            "bd": 1,
-            "padx": 20,
-            "pady": 10,
-            "highlightthickness": 0,
-            "font": ("Monaco", 12, "bold")
-        },
-        "button_secondary": {
-            "bg": theme["bg_button_secondary"],
-            "fg": theme["fg_button_secondary"],
-            "activebackground": theme["border"],
-            "activeforeground": theme["fg_primary"],
-            "relief": "solid",
-            "bd": 1,
-            "padx": 12,
-            "pady": 8,
-            "highlightthickness": 0
-        },
-        "checkbox": {
-            "bg": theme["bg_primary"],
-            "fg": theme["fg_primary"],
-            "selectcolor": theme["bg_input"],
-            "activebackground": theme["bg_primary"],
-            "activeforeground": theme["fg_primary"]
-        },
-        "radio": {
-            "bg": theme["bg_primary"],
-            "fg": theme["fg_primary"],
-            "selectcolor": theme["bg_input"],
-            "activebackground": theme["bg_primary"],
-            "activeforeground": theme["fg_primary"]
-        },
-        "text": {
-            "bg": theme["bg_input"],
-            "fg": theme["fg_primary"],
-            "insertbackground": theme["fg_primary"],
-            "relief": "solid",
-            "bd": 1
-        }
-    }
-    return configs.get(widget_type, {})
+# Fonts - Slightly reduced for compactness
+FONTS = {
+    "title": ("Helvetica Neue", 18, "bold"),      # Was 22
+    "header": ("Helvetica Neue", 13, "bold"),     # Was 15
+    "normal": ("Helvetica Neue", 11),             # Was 12
+    "small": ("Helvetica Neue", 10),              # Was 11
+    "tiny": ("Helvetica Neue", 9),
+}
 
+# Button Configuration (Compact)
+BUTTON_STYLE = {
+    "font": ("Helvetica Neue", 11, "bold"),
+    "bg": COLORS["btn_bg"],
+    "fg": COLORS["btn_fg"],
+    "activebackground": "#dddddd",
+    "activeforeground": COLORS["btn_fg"],
+    "relief": "flat",
+    "bd": 0,
+    "highlightthickness": 0,
+    "padx": 16,                     # Reduced from 24
+    "pady": 5,                      # Reduced from 8
+    "cursor": "hand2"
+}
+
+# Input/Entry Configuration
+ENTRY_STYLE = {
+    "font": FONTS["normal"],
+    "bg": COLORS["input_bg"],
+    "fg": COLORS["input_fg"],
+    "relief": "flat",
+    "bd": 0,
+    "highlightthickness": 0,
+    "insertbackground": COLORS["fg"],
+    "width": 10
+}
+
+# Window Configuration - Much smaller default
 WINDOW_CONFIG = {
-    "width": 700,
-    "height": 800,
+    "width": 960,                   # Fits nicely in half-1080p width
+    "height": 680,                  # Safe height for all screens
     "resizable": (True, True),
 }
 
+# Spacing Configuration - TIGHTENED
 SPACING = {
-    # Section-level spacing
-    "section_pady": 24,         # Section spacing (more generous)
-    "section_padx_bottom": 12,  # Section bottom padding alternative
-
-    # Element-level spacing
-    "element_pady": 16,         # Element vertical spacing
-    "element_padx": 20,         # Element horizontal spacing (card inset)
-
-    # Widget-level spacing (internal padding within containers)
-    "widget_padx": 12,          # Standard widget horizontal padding
-    "widget_padx_nested": 24,   # Nested widget horizontal padding
-    "widget_pady": 12,          # Standard widget vertical padding
-    "widget_pady_small": 6,     # Small widget padding
-    "widget_pady_tiny": 3,      # Tiny widget padding
-    "widget_pady_input": 8,     # Input field vertical padding
-    "widget_pady_input_between": (0, 8),  # Space between input label and field
-    "widget_pady_between": (0, 12),  # Space between sections
-
-    # Button spacing
-    "button_pady": 12,          # Button padding
-    "button_padx": 20,          # Button padding
-    "button_pady_tight": 8,     # Tight button padding
-    "button_padx_tight": 6,     # Tight button padding
-    "button_group_padx": (0, 6), # Button group spacing
-
-    # Panel/Column spacing
-    "panel_padx_right": (0, 12),    # Right column gap between panels
-    "panel_padx_inner": 1,          # Inner border padding
-    "panel_pady_inner": 1,          # Inner border padding
-
-    # Label spacing
-    "label_padx": 12,           # Label horizontal padding
-    "label_pady": (12, 8),      # Label vertical padding
-    "label_title_padx": 12,     # Title label padding
-    "label_title_pady": (12, 8), # Title label padding
-
-    # Status bar spacing
-    "status_padx": 12,          # Status bar padding
-    "status_pady": 8,           # Status bar padding
+    "section_pady": 10,             # Was 20
+    "section_padx_bottom": 4,
+    "element_pady": 8,              # Was 14 (Major vertical saver)
+    "element_padx": 16,             # Was 24
+    "widget_padx": 10,
+    "widget_padx_nested": 20,
+    "widget_pady": 6,
+    "widget_pady_small": 2,
+    "widget_pady_tiny": 1,          # Minimal gap between label and input
+    "widget_pady_input": 4,
+    "widget_pady_input_between": (0, 4),
+    "button_pady": 10,
+    "button_padx_tight": 8,
+    "panel_padx_right": (0, 16),
+    "panel_padx_inner": 1,
+    "panel_pady_inner": 1,
+    "label_padx": 0,
+    "label_pady": (4, 4),
+    "status_padx": 8,
+    "status_pady": 4,
 }
-
-# Button Style Presets (commonly used button configurations)
-BUTTON_STYLES = {
-    "primary": {
-        # Main action button (Confirm & Rename)
-        "padx": SPACING["button_padx"],
-        "pady": SPACING["button_pady"],
-        "width": None,
-    },
-    "secondary": {
-        # Secondary action button (Show Changes)
-        "padx": SPACING["button_padx"],
-        "pady": SPACING["button_pady"],
-        "width": None,
-    },
-    "compact": {
-        # Compact/tight button
-        "padx": SPACING["button_padx_tight"],
-        "pady": SPACING["button_pady_tight"],
-        "width": 15,  # Fixed width for folder select button
-    },
-}
-
-DEFAULT_THEME = "dark"
-
-

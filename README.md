@@ -1,13 +1,146 @@
 # Batch File Renaming Tool
 
-🎨 **Hacker Terminal Green Theme** GUI application for powerful batch file renaming with a beautiful, modern interface.
+簡潔的批次檔案重新命名工具，支援多種重命名操作、實時預覽和日誌記錄。
 
-## ✨ Features
+## 功能特點
 
-### Core Features
-- **🟢 Terminal Aesthetic** - Green-on-black hacker terminal style interface with neon green text (#00DD00) on pure black (#000000)
-- **📝 Flexible Renaming Operations**
-  - Add prefix/suffix to filenames
+- **多種操作模式**
+  - 簡體轉繁體（需要 OpenCC）
+  - 文字替換（尋找 & 取代）
+
+- **靈活的文件篩選**
+  - 重命名全部檔案
+  - 按副檔名篩選特定檔案
+  - 支援同時重命名資料夾
+
+- **格式設定**
+  - 移除指定符號
+  - 添加前綴和後綴
+  - 實時預覽效果
+
+- **安全執行**
+  - 執行前預覽所有變更
+  - 需要確認才能執行
+  - 完整的執行日誌
+
+## 架構
+
+```
+batch_rename_gui.py     - 主應用程式 (約 250 行)
+styles.py               - 顏色、字體、間距配置
+i18n.py                 - 多語言支援
+requirements.txt        - Python 依賴（可選）
+run.sh                  - 啟動腳本
+```
+
+## 安裝
+
+### 環境需求
+- Python 3.10+
+- macOS / Linux / Windows
+
+### 基本安裝
+```bash
+# 僅需 Python 標準庫（Tkinter）
+python3 batch_rename_gui.py
+```
+
+### 可選：簡繁轉換功能
+```bash
+pip install -r requirements.txt
+```
+
+### macOS 推薦
+```bash
+./run.sh
+```
+
+## 使用方法
+
+### 啟動
+```bash
+./run.sh          # macOS/Linux
+```
+
+### UI 佈局
+```
+┌─────────────────────────────────────┐
+│ Batch File Renaming     [Language]  │  Header
+├──────────────────┬──────────────────┤
+│ Step 01-05       │  TERMINAL LOG    │  Main
+│ Settings         │  (Scrollable)    │  Container
+│                  │                  │
+│ [Format Preview] │  STATUS          │
+│                  │  [Preview] [Exec]│
+└──────────────────┴──────────────────┘
+```
+
+### 6 步驟工作流程
+
+1. **選擇資料夾** - 點擊「Select Folder」
+2. **選擇模式** - Files Only 或 Files & Folders
+3. **文件篩選** - 全部或按副檔名篩選
+4. **操作類型** - 簡繁轉換或文字替換
+5. **格式設定** - 前綴、後綴、移除符號
+6. **預覽 & 執行** - Show Changes → Confirm & Rename
+
+## 配置
+
+### 顏色 & 字體 (`styles.py`)
+
+```python
+COLORS = {
+    "primary": "#00DD00",       # 亮綠色文字
+    "secondary": "#16a34a",     # 暗綠色文字
+}
+
+FONTS = {
+    "title": ("Helvetica Neue", 20, "bold"),
+    "header": ("Helvetica Neue", 16, "bold"),
+    "normal": ("Helvetica Neue", 12),
+    "small": ("Helvetica Neue", 10),
+}
+```
+
+## 代碼結構
+
+### `batch_rename_gui.py` - 主應用 (250+ 行)
+- **BatchRenameApp** 類別
+- `setup_ui()` - UI 佈局
+- `_get_rename_plan()` - 生成重命名計畫
+- `_apply_format()` - 應用格式設定
+- `on_show_preview()` - 預覽
+- `on_confirm_execute()` - 執行
+
+### `styles.py` - 配置
+- 顏色、字體、間距常量
+- 窗口大小設定
+
+### `i18n.py` - 多語言
+- 英文 & 繁體中文 UI 文字
+
+## 技術棧
+
+- **Framework**: Tkinter（Python 標準庫）
+- **佈局**: Grid + Pack 混合
+- **字體**: Helvetica Neue (macOS 內建)
+- **最小視窗**: 900x600 pixels
+- **語言**: Python 3.10+
+
+## 常見問題
+
+**Q: 為什麼沒有簡繁轉換？**
+A: 需要 OpenCC，執行 `pip install opencc-python-reimplemented`
+
+**Q: 能否撤銷重命名？**
+A: 不能，請務必先查看預覽
+
+**Q: 支援哪些語言？**
+A: 英文和繁體中文
+
+## 許可證
+
+MIT
   - Remove unwanted symbols
   - Find and replace text patterns
   - Simplified to Traditional Chinese conversion (with OpenCC)
@@ -151,7 +284,7 @@ Modular translation system with 52+ translation keys:
 #### Two-Column Responsive Layout
 ```
 ┌─────────────────────────────────┐
-│ 📌 BATCH RENAME  [中文/English] │  Header
+│ BATCH RENAME                    │
 ├──────────────┬──────────────────┤
 │ Left Panel   │ Right Panel      │
 │ (50% width)  │ (50% width)      │
