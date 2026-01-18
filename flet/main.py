@@ -32,7 +32,7 @@ except ImportError: OPENCC_MSG = "Module Missing"
 
 def main(page: ft.Page):
     # --- APP CONFIGURATION ---
-    page.title = "Pro Renamer v4.3 (Perfect Layout)"
+    page.title = "Pro Renamer v4.4 (Browse Fixed)"
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 0
     page.window_width = 1200
@@ -222,17 +222,23 @@ def main(page: ft.Page):
         preview_log.current.controls = log_lines
         preview_log.current.update()
 
+    # --- FILE PICKER LOGIC (RE-ENABLED) ---
     def on_folder_picker_result(e: ft.FilePickerResultEvent):
+        # 這是關鍵：如果使用者真的選了資料夾，e.path 會有值
         if e.path:
             selected_path.current.value = e.path
             selected_path.current.update()
             update_ui()
+        else:
+            print("Picker cancelled or no path selected.")
 
-    # --- UI COMPONENTS ---
-
+    # [FIX] 1. 定義 Picker
     file_picker = ft.FilePicker(on_result=on_folder_picker_result)
+    # [FIX] 2. 加入 Overlay (這步最重要)
     page.overlay.append(file_picker)
     page.update()
+
+    # --- UI COMPONENTS ---
 
     # Step 1
     step1 = ft.Container(
@@ -246,7 +252,13 @@ def main(page: ft.Page):
             ),
             ft.Row([
                 ft.ElevatedButton("Load Folder", icon=ft.Icons.REFRESH, bgcolor=C_ACCENT, color="black", on_click=update_ui, height=40, expand=True),
-                ft.OutlinedButton("Browse...", icon=ft.Icons.FOLDER_OPEN, on_click=lambda _: file_picker.get_directory_path(), height=40)
+                # [FIX] 3. 綁定按鈕事件
+                ft.OutlinedButton(
+                    "Browse...",
+                    icon=ft.Icons.FOLDER_OPEN,
+                    on_click=lambda _: file_picker.get_directory_path(), # 呼叫原生資料夾選擇器
+                    height=40
+                )
             ]),
             ft.RadioGroup(ref=rename_mode, value="files", content=ft.Row([ft.Radio(value="files", label="Files Only", fill_color=C_ACCENT), ft.Radio(value="both", label="Files & Folders", fill_color=C_ACCENT)]), on_change=update_ui)
         ]), padding=15, bgcolor=C_CARD, border_radius=10
@@ -259,7 +271,7 @@ def main(page: ft.Page):
         ft.TextField(ref=filter_ext, hint_text="jpg, png", disabled=True, dense=True, on_change=update_ui)
     ]), padding=15, bgcolor=C_CARD, border_radius=10)
 
-    # Step 3 (Fixed: Dropdown Width)
+    # Step 3
     op_opts = [
         ft.dropdown.Option("none", "No Operation"),
         ft.dropdown.Option("replace", "Replace Text"),
@@ -273,7 +285,7 @@ def main(page: ft.Page):
             options=op_opts,
             border_color=C_ACCENT,
             dense=True,
-            expand=True, # [FIX] Allow dropdown to fill width
+            expand=True,
             on_change=update_ui
         ),
         ft.Row([ft.TextField(ref=replace_from, label="Find", expand=True, disabled=True, dense=True, on_change=update_ui), ft.TextField(ref=replace_to, label="Replace", expand=True, disabled=True, dense=True, on_change=update_ui)])
@@ -293,7 +305,7 @@ def main(page: ft.Page):
         ft.Divider(), ft.Text("Live Preview:", color=C_TEXT_DIM), ft.Column(ref=live_preview_container)
     ]), padding=15, bgcolor=C_CARD, border_radius=10)
 
-    # Actions Area (FIX: Vertical Stretch)
+    # Actions Area
     status_display = ft.Container(ref=status_banner, content=ft.Row([ft.Icon(ft.Icons.INFO_OUTLINE, color="white"), ft.Text("Waiting...", color="white", weight=ft.FontWeight.BOLD)], alignment=ft.MainAxisAlignment.CENTER), bgcolor="grey700", padding=10, border_radius=8)
 
     right_column_content = ft.Column([
@@ -315,18 +327,18 @@ def main(page: ft.Page):
             border=ft.border.all(1, "grey"),
             border_radius=5,
             padding=10,
-            expand=True # Expands to fill the rest of the column height
+            expand=True
         )
-    ], spacing=15, expand=True) # Column itself expands
+    ], spacing=15, expand=True)
 
     step_actions = ft.Container(
         content=right_column_content,
         padding=15, bgcolor=C_CARD, border_radius=10,
-        expand=True # Container expands inside the Row's Column
+        expand=True
     )
 
-    # Main Layout (FIX: CrossAxisAlignment.STRETCH)
-    sidebar = ft.Container(width=250, bgcolor=C_SIDEBAR, padding=20, content=ft.Column([ft.Row([ft.Icon(ft.Icons.DRIVE_FILE_RENAME_OUTLINE, color=C_ACCENT, size=30), ft.Text("Renamer", size=20, weight=ft.FontWeight.BOLD)]), ft.Divider(), ft.Text("v4.3 Perfect", color=C_TEXT_DIM)]))
+    # Main Layout
+    sidebar = ft.Container(width=250, bgcolor=C_SIDEBAR, padding=20, content=ft.Column([ft.Row([ft.Icon(ft.Icons.DRIVE_FILE_RENAME_OUTLINE, color=C_ACCENT, size=30), ft.Text("Renamer", size=20, weight=ft.FontWeight.BOLD)]), ft.Divider(), ft.Text("v4.4 Browse Fix", color=C_TEXT_DIM)]))
 
     main_content = ft.Column(
         [
@@ -334,21 +346,18 @@ def main(page: ft.Page):
             ft.Container(height=20),
             ft.Row(
                 [
-                    # Left Column
                     ft.Column(
                         [step1, step2, step3, step4],
                         expand=6,
                         spacing=20,
                         scroll=ft.ScrollMode.HIDDEN
                     ),
-                    # Right Column
                     ft.Column(
                         [step_actions],
                         expand=6,
-                        # [FIX] STRETCH ensures right column matches left column's height (or fills screen)
                     )
                 ],
-                vertical_alignment=ft.CrossAxisAlignment.STRETCH, # [KEY FIX] Forces both columns to full height
+                vertical_alignment=ft.CrossAxisAlignment.STRETCH,
                 spacing=20,
                 expand=True
             )
