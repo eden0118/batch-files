@@ -1,0 +1,5 @@
+# Optional: For Simplified Chinese to Traditional Chinese conversion
+# Uncomment if needed. Note: Some versions may have macOS compatibility issues.
+# opencc>=1.1.0
+# OR
+# opencc-python-reimplemented>=0.1.7
