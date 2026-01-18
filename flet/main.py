@@ -234,7 +234,39 @@ def main(page: ft.Page):
         btn_execute.current.bgcolor = COLORS["accent"]
         btn_execute.current.color = "black"
         btn_execute.current.icon = ft.Icons.ROCKET_LAUNCH
+        btn_execute.current.disabled = False
         btn_execute.current.update()
+
+    def on_reset_click(e) -> None:
+        """重設按鈕 - 清除所有設定"""
+        if app_state["is_executing"]:
+            # 正在轉換中，不允許重設
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("正在轉換中，無法重設!"),
+                bgcolor="orange"
+            )
+            page.snack_bar.open = True
+            page.update()
+            return
+
+        # 清除所有設定
+        selected_path.current.value = ""
+        rename_mode.current.value = "files"
+        filter_type.current.value = "all"
+        filter_ext.current.value = ""
+        op_mode.current.value = "s2t"
+        replace_from.current.value = ""
+        replace_to.current.value = ""
+        remove_sym_input.current.value = ""
+        prefix_input.current.value = ""
+        suffix_input.current.value = ""
+        preview_log.current.controls = []
+        live_preview_container.current.controls = []
+
+        _reset_execute_button()
+        _set_status_banner("idle", "已重設所有設定")
+
+        page.update()
 
     def on_execute_click(e) -> None:
         """
@@ -275,29 +307,43 @@ def main(page: ft.Page):
             btn_execute.current.text = "正在重新命名..."
             btn_execute.current.bgcolor = "grey700"
             btn_execute.current.update()
-            page.update()
 
             success = 0
+            failed = 0
+            total_to_rename = len([t for t in targets if t[0].name != t[1]])
+
             log_lines = [ft.Text("--- 執行開始 ---", color=COLORS["accent"])]
+            preview_log.current.controls = log_lines
+            preview_log.current.update()
+            page.update()
 
             try:
-                for old, new in targets:
+                for idx, (old, new) in enumerate(targets):
                     if old.name == new:
                         continue
                     try:
                         os.rename(old, old.parent / new)
                         success += 1
-                        log_lines.append(
-                            ft.Text(f"[OK] {old.name} -> {new}", color="green", font_family="monospace")
-                        )
                     except Exception as ex:
-                        log_lines.append(
-                            ft.Text(f"[ERR] {old.name}: {ex}", color="red", font_family="monospace")
-                        )
+                        failed += 1
+                        print(f"[ERR] {old.name}: {ex}")
 
-                log_lines.append(
-                    ft.Text(f"--- 完成: {success} 個文件已重命名 ---", weight="bold")
-                )
+                    # 實時更新進度顯示
+                    remaining = total_to_rename - success - failed
+                    progress_text = f"已轉換成功 {success} 個，剩餘 {remaining} 個"
+
+                    log_lines = [
+                        ft.Text("--- 執行開始 ---", color=COLORS["accent"]),
+                        ft.Text(progress_text, color=COLORS["text_dim"], size=13)
+                    ]
+                    preview_log.current.controls = log_lines
+                    preview_log.current.update()
+
+                log_lines = [
+                    ft.Text("--- 執行開始 ---", color=COLORS["accent"]),
+                    ft.Text(f"已轉換成功 {success} 個，剩餘 0 個", color=COLORS["text_dim"], size=13),
+                    ft.Text(f"--- 完成: {success} 個文件已重命名 ---", weight="bold", color="green")
+                ]
 
             finally:
                 # 恢復狀態
@@ -476,7 +522,7 @@ def main(page: ft.Page):
             ),
             ft.TextField(
                 ref=filter_ext,
-                hint_text="jpg, png, txt",
+                hint_text="jpg, png, txt, flac, mp4",
                 disabled=True,
                 dense=True,
                 on_change=update_ui
@@ -588,9 +634,9 @@ def main(page: ft.Page):
 
     log_area = ft.Container(
         content=ft.Column(ref=preview_log, scroll=ft.ScrollMode.AUTO),
-        bgcolor="black",
-        border=ft.border.all(1, "grey"),
-        border_radius=5,
+        # bgcolor="black",
+        # border=ft.border.all(1, "grey"),
+        border_radius=4,
         padding=10,
         expand=True
     )
@@ -600,23 +646,33 @@ def main(page: ft.Page):
         status_display,
         action_buttons,
         log_area
-    ], spacing=15, expand=True)
+    ], spacing=12, expand=True)
 
     step_actions = ft.Container(
         content=right_column,
-        padding=15, bgcolor=COLORS["card"], border_radius=10,
+        padding=12, bgcolor=COLORS["card"], border_radius=10,
         expand=True
     )
 
     # --- MAIN LAYOUT ---
     main_content = ft.Column([
         ft.Row([
-            ft.Icon(ft.Icons.DRIVE_FILE_RENAME_OUTLINE, color=COLORS["accent"], size=32),
             ft.Column([
-                ft.Text("Renamer", size=28, weight=ft.FontWeight.BOLD),
-                ft.Text("v1.0 • Batch File Renaming Tool", size=11, color=COLORS["text_dim"])
-            ], spacing=2)
-        ], spacing=15, alignment=ft.MainAxisAlignment.START),
+                ft.Row([
+                    ft.Icon(ft.Icons.DRIVE_FILE_RENAME_OUTLINE, color=COLORS["accent"], size=32),
+                    ft.Column([
+                        ft.Text("Renamer", size=28, weight=ft.FontWeight.BOLD),
+                        ft.Text("v1.0 • Batch File Renaming Tool", size=11, color=COLORS["text_dim"])
+                    ], spacing=2)
+                ], spacing=12, alignment=ft.MainAxisAlignment.START)
+            ], expand=True),
+            ft.IconButton(
+                ft.Icons.REFRESH,
+                icon_size=24,
+                on_click=on_reset_click,
+                tooltip="Reset all settings"
+            )
+        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
         ft.Container(height=25),
         ft.Row([
             ft.Column(
