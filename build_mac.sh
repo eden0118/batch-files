@@ -21,10 +21,9 @@ python3 -m PyInstaller \
     --name "Batch Renamer" \
     --onedir \
     --windowed \
-    --add-data "flet/main.py:." \
     --osx-bundle-identifier "com.batchrenamer.app" \
     --collect-all flet \
-    flet/main.py
+    main.py
 
 # Create a DMG (optional)
 if command -v hdiutil &> /dev/null; then

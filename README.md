@@ -227,6 +227,4 @@ MIT License - 詳見 LICENSE 文件
 
 ---
 
-**Made with ❤️ by the Batch Renamer Team**
-
 Last Updated: 2026-01-19

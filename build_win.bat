@@ -22,7 +22,7 @@ python3 -m PyInstaller ^
     --onefile ^
     --windowed ^
     --collect-all flet ^
-    flet/main.py
+    main.py
 
 echo ==========================================
 echo Build complete!
