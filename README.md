@@ -32,6 +32,7 @@
 
 ### Run from Source
 
+**macOS/Linux:**
 ```bash
 # Clone repository
 git clone https://github.com/eden0118/batch-files.git
@@ -39,15 +40,30 @@ cd batch-files
 
 # Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-# or
-venv\Scripts\activate     # Windows
+source venv/bin/activate
 
 # Install dependencies
 pip install flet
 
 # Run the application
 python3 main.py
+```
+
+**Windows (PowerShell/CMD):**
+```cmd
+# Clone repository
+git clone https://github.com/eden0118/batch-files.git
+cd batch-files
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate
+
+# Install dependencies
+pip install flet
+
+# Run the application
+python main.py
 ```
 
 ## Usage Guide
@@ -181,7 +197,11 @@ chmod +x build_mac.sh
 ./build_mac.sh
 ```
 
-Output: `dist/Batch Renamer.app` and `dist/Batch Renamer.dmg`
+**Output:**
+- `dist/Batch Renamer.app` - Application bundle
+- `dist/Batch Renamer.dmg` - DMG installer
+
+**Status:** ✅ Tested and working
 
 ### Windows
 
@@ -191,7 +211,10 @@ pip install pyinstaller
 build_win.bat
 ```
 
-Output: `dist/Batch Renamer.exe`
+**Output:**
+- `dist/Batch Renamer.exe` - Single executable file
+
+**Status:** ⚠️ **Not yet tested** - Build script is configured but executable has not been tested on Windows systems. Please report any issues encountered during building or running on Windows.
 
 ## FAQ
 
@@ -206,24 +229,26 @@ A: Renaming operations cannot be undone. Back up important files in advance.
 
 **Q: Permission issues on macOS?**
 A: Remove the quarantine attribute:
-```bash
-xattr -d com.apple.quarantine "/Applications/Batch Renamer.app"
-```
-
-## Changelog
+``✅ Restructured project, separated business logic from UI
+- ✅ Created modular architecture (Core/UI/Utils)
+- ✅ Simplified app.py, improved maintainability
+- ✅ Optimized constants.py, removed redundant dicts
+- ✅ Integrated execute_rename() logic
+- ✅ macOS build verified and working
+- ⚠️ Windows build script added but not yet tested
 
 ### v1.4 (2026-01-19)
-- 🔧 Restructured project, separated business logic from UI
-- ✨ Created modular architecture (Core/UI/Utils)
-- 📦 Simplified app.py, improved maintainability
-- 🎨 Optimized constants.py, removed redundant dicts
-- 🌐 Integrated execute_rename() logic
+- Restructured project, separated business logic from UI
+- Created modular architecture (Core/UI/Utils)
+- Simplified app.py, improved maintainability
+- Optimized constants.py, removed redundant dicts
+- Integrated execute_rename() logic
 
 ### v1.0 (2026-01-18)
-- ✨ Initial release
-- 🎨 Flet cross-platform GUI
-- 🌐 Core features: Simplified to Traditional, text replacement
-- 📦 macOS and Windows build support
+- Initial release
+- Flet cross-platform GUI
+- Core features: Simplified to Traditional, text replacement
+- macOS and Windows build support
 
 ## License
 
@@ -239,7 +264,7 @@ Last Updated: 2026-01-19
 
 <a id="chinese-version"></a>
 
-# 批次檔案重新命名工具 (Traditional Chinese Version)
+# 批次檔案重新命名工具
 
 > 支援繁簡轉換、文本替換、符號移除、前綴後綴等功能的跨平台檔案批次重新命名工具
 
@@ -300,14 +325,14 @@ python3 main.py
 ## 變更日誌
 
 ### v1.4 (2026-01-19)
-- 🔧 重構專案結構，分離業務邏輯與 UI
-- ✨ 創建模組化架構 (Core/UI/Utils)
-- 📦 簡化 app.py，改善可維護性
-- 🎨 優化 constants.py，移除冗餘字典
-- 🌐 整合 execute_rename() 邏輯
+- 重構專案結構，分離業務邏輯與 UI
+- 創建模組化架構 (Core/UI/Utils)
+- 簡化 app.py，改善可維護性
+- 優化 constants.py，移除冗餘字典
+- 整合 execute_rename() 邏輯
 
 ### v1.0 (2026-01-18)
-- ✨ 首個發行版本
-- 🎨 Flet 跨平台 GUI
-- 🌐 簡轉繁、文本替換等核心功能
-- 📦 macOS 和 Windows 編譯支援
+- 首個發行版本
+- Flet 跨平台 GUI
+- 簡轉繁、文本替換等核心功能
+- macOS 和 Windows 編譯支援
