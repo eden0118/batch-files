@@ -1,11 +1,247 @@
-# 批次檔案重新命名工具 (Batch Renamer)
+# Batch Renamer
 
-> 支援繁簡轉換、文本替換、符號移除、前綴後綴等功能的跨平台檔案批次重新命名工具
+> Cross-platform batch file renaming tool with support for text conversion, replacement, symbol removal, and prefix/suffix operations.
 
 ![Version](https://img.shields.io/badge/version-1.4-blue)
 ![Python](https://img.shields.io/badge/python-3.10+-brightgreen)
 ![Framework](https://img.shields.io/badge/framework-Flet-2dd4bf)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+[中文版本](#chinese-version) | [English](#english-version)
+
+---
+
+## Core Features
+
+- **Simplified to Traditional Chinese**: Automatically convert Simplified Chinese to Traditional Chinese in filenames (OpenCC or fallback dictionary)
+- **Text Replacement**: Batch replace specified text in filenames
+- **Symbol Removal**: Remove specific symbols from filenames
+- **Prefix & Suffix**: Add prefix and suffix to filenames
+- **Live Preview**: View all renaming results before execution
+- **Smart Filtering**: Filter by file extension
+- **Multi-language Support**: English and Traditional Chinese
+- **Detailed Logging**: Track the renaming process for each file
+
+## System Requirements
+
+- **Python**: 3.10 or higher
+- **Operating System**: macOS 10.14+, Windows 10+, Linux
+- **GUI Framework**: Flet (>=0.20.0)
+
+## Quick Start
+
+### Run from Source
+
+```bash
+# Clone repository
+git clone https://github.com/eden0118/batch-files.git
+cd batch-files
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# or
+venv\Scripts\activate     # Windows
+
+# Install dependencies
+pip install flet
+
+# Run the application
+python3 main.py
+```
+
+## Usage Guide
+
+### Basic Steps
+
+1. **Select Folder**: Enter or browse the directory path to rename
+2. **Set Filter** (Optional):
+   - **Filter Type**: All files or specific extensions
+   - **Extensions**: Input extensions (e.g., `txt,pdf,mp3`)
+3. **Set Operation**:
+   - **Conversion Mode**: None, Simplified to Traditional, Text Replace
+   - **Formatting**: Remove symbols, add prefix/suffix
+4. **Preview Results**: View live preview or full preview
+5. **Execute**: Click "Execute Rename" and confirm
+
+### Operation Modes
+
+#### No Operation
+Only apply formatting operations (prefix, suffix, symbol removal)
+
+#### Simplified to Traditional
+Convert Simplified Chinese to Traditional Chinese
+- Prioritize OpenCC (more accurate)
+- Use fallback dictionary if OpenCC unavailable
+
+#### Text Replace
+Directly replace specified text in filenames
+
+## Project Structure
+
+```
+batch-files/
+├── src/batch_renamer/
+│   ├── __init__.py
+│   ├── main.py                   # Module entry point
+│   ├── core/
+│   │   ├── __init__.py
+│   │   └── renamer.py           # File renaming engine (business logic)
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── app.py               # Flet GUI main application
+│   │   ├── components.py        # Reusable UI components
+│   │   └── events.py            # Event handlers
+│   └── utils/
+│       ├── __init__.py
+│       ├── constants.py         # Constants definition (dicts, colors)
+│       ├── converter.py         # Simplified/Traditional conversion tools
+│       └── strings.py           # Multi-language strings
+├── tests/
+│   ├── __init__.py
+│   └── test_renamer.py          # Unit tests
+├── main.py                       # Application entry point
+├── pyproject.toml               # Project configuration
+├── requirements.txt             # Runtime dependencies
+├── requirements-build.txt       # Build dependencies
+├── build_mac.sh                 # macOS build script
+├── build_win.bat                # Windows build script
+├── build_spec.py                # PyInstaller configuration
+└── README.md                    # This file
+```
+
+## Architecture Design
+
+### Layered Structure
+
+- **Core Layer** (`src/batch_renamer/core/`): Pure business logic, no UI dependencies, independently testable
+- **UI Layer** (`src/batch_renamer/ui/`): Flet GUI, handles user interaction
+- **Utils Layer** (`src/batch_renamer/utils/`): Shared tools and constants
+
+### Main Classes
+
+**FileRenamer**: Core renaming engine
+- `scan_directory()`: Recursively scan directory
+- `apply_conversion()`: Apply text conversion
+- `apply_formatting()`: Apply formatting
+- `execute_rename()`: Execute actual renaming
+
+## Dependency Management
+
+### Runtime Dependencies
+
+```
+flet>=0.20.0                 # GUI framework
+```
+
+### Optional Dependencies
+
+```
+opencc>=1.1.0                # Simplified/Traditional conversion (high precision)
+```
+
+### Development Dependencies
+
+```
+pytest>=7.0                  # Unit testing
+pytest-cov>=4.0              # Test coverage
+```
+
+## Development
+
+### Environment Setup
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+pip install flet pytest
+```
+
+### Run Development Version
+
+```bash
+source venv/bin/activate
+python3 main.py
+```
+
+### Code Standards
+
+- **Naming**: snake_case (functions/variables), CamelCase (classes)
+- **Type Hints**: Use `typing` module
+- **Documentation**: Docstrings explaining function purpose
+
+## Building
+
+### macOS
+
+```bash
+source venv/bin/activate
+pip install pyinstaller
+chmod +x build_mac.sh
+./build_mac.sh
+```
+
+Output: `dist/Batch Renamer.app` and `dist/Batch Renamer.dmg`
+
+### Windows
+
+```cmd
+venv\Scripts\activate
+pip install pyinstaller
+build_win.bat
+```
+
+Output: `dist/Batch Renamer.exe`
+
+## FAQ
+
+**Q: Poor conversion quality for Simplified to Traditional?**
+A: Install OpenCC for better accuracy:
+```bash
+pip install opencc
+```
+
+**Q: How to restore renamed files?**
+A: Renaming operations cannot be undone. Back up important files in advance.
+
+**Q: Permission issues on macOS?**
+A: Remove the quarantine attribute:
+```bash
+xattr -d com.apple.quarantine "/Applications/Batch Renamer.app"
+```
+
+## Changelog
+
+### v1.4 (2026-01-19)
+- 🔧 Restructured project, separated business logic from UI
+- ✨ Created modular architecture (Core/UI/Utils)
+- 📦 Simplified app.py, improved maintainability
+- 🎨 Optimized constants.py, removed redundant dicts
+- 🌐 Integrated execute_rename() logic
+
+### v1.0 (2026-01-18)
+- ✨ Initial release
+- 🎨 Flet cross-platform GUI
+- 🌐 Core features: Simplified to Traditional, text replacement
+- 📦 macOS and Windows build support
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Contributing
+
+Issues and Pull Requests are welcome!
+
+---
+
+Last Updated: 2026-01-19
+
+<a id="chinese-version"></a>
+
+# 批次檔案重新命名工具 (Traditional Chinese Version)
+
+> 支援繁簡轉換、文本替換、符號移除、前綴後綴等功能的跨平台檔案批次重新命名工具
 
 ## 核心功能
 
@@ -29,20 +265,11 @@
 ### 從原始碼執行
 
 ```bash
-# 克隆儲存庫
 git clone https://github.com/eden0118/batch-files.git
 cd batch-files
-
-# 建立虛擬環境
 python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-# 或
-venv\Scripts\activate     # Windows
-
-# 安裝依賴
+source venv/bin/activate
 pip install flet
-
-# 執行應用程式
 python3 main.py
 ```
 
@@ -51,14 +278,11 @@ python3 main.py
 ### 基本步驟
 
 1. **選擇資料夾**: 貼入或選擇要重新命名的目錄路徑
-2. **設定篩選** (可選):
-   - **篩選類型**: 全部檔案或特定副檔名
-   - **副檔名**: 輸入副檔名 (如 `txt,pdf,mp3`)
-3. **設定操作**:
-   - **轉換模式**: 無、簡轉繁、文本替換
-   - **格式化**: 移除符號、添加前綴/後綴
-4. **預覽結果**: 查看即時預覽或完整預覽
-5. **執行**: 點選「執行重新命名」並確認
+2. **設定篩選** (可選): 選擇全部檔案或特定副檔名
+3. **設定操作**: 無、簡轉繁、文本替換
+4. **設定格式**: 移除符號、添加前綴/後綴
+5. **預覽結果**: 查看即時預覽或完整預覽
+6. **執行**: 點選「執行重新命名」並確認
 
 ### 操作模式
 
@@ -72,135 +296,6 @@ python3 main.py
 
 #### 文本替換
 直接替換檔案名稱中的指定文本
-
-## 專案結構
-
-```
-batch-files/
-├── src/batch_renamer/
-│   ├── __init__.py
-│   ├── main.py                   # 模組進入點
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── renamer.py           # 檔案重命名引擎（業務邏輯）
-│   ├── ui/
-│   │   ├── __init__.py
-│   │   ├── app.py               # Flet GUI 主應用
-│   │   ├── components.py        # 可重用 UI 組件
-│   │   └── events.py            # 事件處理器
-│   └── utils/
-│       ├── __init__.py
-│       ├── constants.py         # 常數定義（字典、顏色）
-│       ├── converter.py         # 簡繁轉換工具
-│       └── strings.py           # 多語言字符串
-├── tests/
-│   ├── __init__.py
-│   └── test_renamer.py          # 單元測試
-├── main.py                       # 應用進入點
-├── pyproject.toml               # 專案配置
-├── requirements.txt             # 執行依賴
-├── requirements-build.txt       # 編譯依賴
-├── build_mac.sh                 # macOS 編譯腳本
-├── build_win.bat                # Windows 編譯腳本
-├── build_spec.py                # PyInstaller 配置
-└── README.md                    # 本文件
-```
-
-## 架構設計
-
-### 分層結構
-
-- **Core Layer** (`src/batch_renamer/core/`): 純業務邏輯，無 UI 依賴，可單獨測試
-- **UI Layer** (`src/batch_renamer/ui/`): Flet GUI，負責用戶交互
-- **Utils Layer** (`src/batch_renamer/utils/`): 共享工具和常數
-
-### 主要類別
-
-**FileRenamer**: 核心重命名引擎
-- `scan_directory()`: 遞歸掃描目錄
-- `apply_conversion()`: 應用文本轉換
-- `apply_formatting()`: 應用格式化
-- `execute_rename()`: 執行實際重命名
-
-## 依賴管理
-
-### 執行時依賴
-
-```
-flet>=0.20.0                 # GUI 框架
-```
-
-### 可選依賴
-
-```
-opencc>=1.1.0                # 簡繁轉換（高精度）
-```
-
-### 開發依賴
-
-```
-pytest>=7.0                  # 單元測試
-pytest-cov>=4.0              # 測試覆蓋率
-```
-
-## 開發
-
-### 環境設定
-
-```bash
-python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-pip install flet pytest
-```
-
-### 執行開發版本
-
-```bash
-source venv/bin/activate
-python3 main.py
-```
-
-### 代碼標準
-
-- **命名**: snake_case (函數/變數), CamelCase (類別)
-- **類型提示**: 使用 `typing` 模組
-- **文檔**: Docstring 說明函數用途
-
-## 編譯
-
-### macOS
-
-```bash
-source venv/bin/activate
-pip install pyinstaller
-chmod +x build_mac.sh
-./build_mac.sh
-```
-
-### Windows
-
-```cmd
-venv\Scripts\activate
-pip install pyinstaller
-build_win.bat
-```
-
-## 常見問題
-
-**Q: 簡轉繁轉換效果不佳？**
-A: 安裝 OpenCC 以提升精度：
-```bash
-pip install opencc
-```
-
-**Q: 如何復原已重命名的檔案？**
-A: 重新命名操作無法復原，請提前備份重要檔案。
-
-**Q: macOS 上出現權限問題？**
-A: 使用以下指令移除隔離屬性：
-```bash
-xattr -d com.apple.quarantine "/Applications/Batch Renamer.app"
-```
 
 ## 變更日誌
 
@@ -216,15 +311,3 @@ xattr -d com.apple.quarantine "/Applications/Batch Renamer.app"
 - 🎨 Flet 跨平台 GUI
 - 🌐 簡轉繁、文本替換等核心功能
 - 📦 macOS 和 Windows 編譯支援
-
-## 許可證
-
-MIT License - 詳見 LICENSE 文件
-
-## 貢獻
-
-歡迎提交 Issue 和 Pull Request！
-
----
-
-Last Updated: 2026-01-19
