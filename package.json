@@ -8,16 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MestoChang/python-script.git"
+    "url": "git+https://github.com/eden0118/batch-files.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/MestoChang/python-script/issues"
+    "url": "https://github.com/eden0118/batch-files/issues"
   },
-  "homepage": "https://github.com/MestoChang/python-script#readme",
+  "homepage": "https://github.com/eden0118/batch-files#readme",
   "devDependencies": {
     "prettier": "^3.8.0"
   }

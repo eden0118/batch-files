@@ -8,6 +8,10 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+src/batch_renamer.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # IDE 和編輯器
 .idea/

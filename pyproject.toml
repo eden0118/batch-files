@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "batch-renamer"
+version = "4.4"
+description = "Cross-platform batch file renaming tool with GUI support for simplified-to-traditional Chinese conversion"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Eden", email = ""}
+]
+requires-python = ">=3.10"
+keywords = ["batch", "rename", "gui", "flet", "chinese", "s2t"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Chinese (Traditional)",
+    "Natural Language :: Chinese (Simplified)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities"
+]
+
+dependencies = [
+    "flet>=0.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.950",
+]
+opencc = [
+    "opencc>=1.1.0",
+]
+
+[project.urls]
+"Repository" = "https://github.com/eden90267/batch-renamer"
+"Bug Tracker" = "https://github.com/eden90267/batch-renamer/issues"
+
+[tool.setuptools]
+packages = ["batch_renamer"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--verbose --cov=batch_renamer"
