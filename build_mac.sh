@@ -9,15 +9,15 @@ echo "=========================================="
 
 # Install dependencies if needed
 echo "Installing dependencies..."
-pip3 install -q flet pyinstaller
+pip install -q flet pyinstaller
 
 # Clean up previous builds
 echo "Cleaning up previous builds..."
-rm -rf build dist "Batch Renamer.app"
+rm -rf build dist "Batch Renamer.app" "Batch Renamer.spec"
 
-# Build the application using python3 -m pyinstaller
+# Build the application using python -m pyinstaller
 echo "Building application..."
-python3 -m PyInstaller \
+python -m PyInstaller \
     --name "Batch Renamer" \
     --onedir \
     --windowed \
